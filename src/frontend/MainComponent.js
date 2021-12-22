@@ -1,5 +1,6 @@
 import Main_page from "./Main_page";
 import Index_page from "./Index_page";
+import {BrowserRouter as Router, Route, Link, Switch} from "react-router-dom";
 import React, {Component, useEffect} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import axios from "axios";
@@ -14,12 +15,10 @@ function foo(){
     axios.post('http://localhost:8080/users/checkUser', {token: localStorage.getItem("token"), login: localStorage.getItem("login")}, {headers: httpHeaders})
         .then(response => {
             if (response.status == 200) {
-                console.log("true")
                 return "true";
             }
         })
         .catch(function (error) {
-            console.log("false")
             return "false";
 
         })

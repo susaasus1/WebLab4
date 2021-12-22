@@ -1,6 +1,7 @@
 package org.examplenew.repos;
 
 
+import org.examplenew.dto.PointDTO;
 import org.examplenew.entity.Point;
 import org.examplenew.entity.RefreshToken;
 import org.examplenew.entity.User;
@@ -15,5 +16,7 @@ public interface PointRepository extends JpaRepository<Point, String> {
 
     @Transactional
     Collection<Point> deleteAllByUser(User user);
+    @Transactional
+    Collection<Point> findAllByUser(User user);
 
 }

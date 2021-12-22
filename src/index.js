@@ -5,6 +5,7 @@ import reportWebVitals from './reportWebVitals';
 import {createStore} from "redux";
 import {Provider} from "react-redux";
 
+
 const defaultState = {
     user: "",
     password: "",
@@ -19,8 +20,8 @@ const defaultState = {
 const reducer = (state = defaultState, action) => {
     switch (action.type) {
         case "LOAD_TABLE":
-            for (let i = 0; i < action.data.length; i++) {
-                action.data[i].user = action.data[i].user.userName;
+            for (let i = 0; i < action.data.length; i++){
+                action.data[i].user = action.data[i].userName;
             }
             return {...state, data: action.data}
         case "SET_LOG_IN":
@@ -28,15 +29,13 @@ const reducer = (state = defaultState, action) => {
         case "GET_LOG_IN":
             return state.login;
         case "SAVE_POINT":
-            let new_data = [{
-                x: action.point.x,
+            let new_data = [{x: action.point.x,
                 y: action.point.y,
                 r: action.point.r,
                 execTime: action.point.execTime,
                 curTime: action.point.curTime,
                 hit: action.point.hit,
-                user: action.point.user.userName
-            }];
+                user: action.point.userName}];
             let full_data = state.data.concat(new_data)
             return {...state, data: full_data};
         case "UPDATE_USER":
@@ -52,7 +51,7 @@ const reducer = (state = defaultState, action) => {
         case "LOG_IN":
             localStorage.setItem("login", action.login);
             localStorage.setItem("userID", action.userID);
-            if (action.login == null || action.login === "") {
+            if (action.login == null || action.login === ""){
                 state.r = null;
             }
             return {...state, login: action.login, userID: action.userID};
@@ -62,6 +61,7 @@ const reducer = (state = defaultState, action) => {
 }
 
 const store = createStore(reducer, defaultState)
+
 
 
 ReactDOM.render(

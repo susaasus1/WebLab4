@@ -15,10 +15,11 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RefreshTokenService {
+public class RefreshTokenService implements RefreshTokenServiceInter{
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    @Override
     public Optional<String> create(Integer userID){
         RefreshToken refreshToken = new RefreshToken();
         Optional<User> userOptional = userRepository.findById(userID);
@@ -38,6 +39,7 @@ public class RefreshTokenService {
     }
 
 
+    @Override
     public int deleteByUserID(Integer userID){
 
 
@@ -50,13 +52,14 @@ public class RefreshTokenService {
     }
 
 
+    @Override
     public Optional<String> updateRefreshToken(Integer userID){
         deleteByUserID(userID);
         return create(userID);
     }
 
+    @Override
     public Optional<RefreshToken> findByRefreshTokenString(String refreshTokenString){
-        refreshTokenRepository.findAll().stream().map(RefreshToken::getRefreshToken).forEach(System.out::println);
 
         RefreshToken refreshToken = refreshTokenRepository.findByRefreshToken(refreshTokenString);
         if (refreshToken == null){

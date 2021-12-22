@@ -1,24 +1,30 @@
 package org.examplenew.dto;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.GeneratedValue;
 import java.time.OffsetDateTime;
 
 @Getter
 @Setter
-public class CustomPoint {
+@AllArgsConstructor
+public class PointDTO {
     private double x;
     private double y;
     private double r;
-    private boolean hit;
+    private String hit;
     private String curTime;
     private String execTime;
+    private String userName;
     private Integer userID;
     private Long pointID;
 
-    public CustomPoint(double x, double y, double r, Integer userID) {
+    public PointDTO(){};
+
+    public PointDTO(double x, double y, double r, Integer userID){
         this.x = x;
         this.y = y;
         this.r = r;
@@ -26,20 +32,20 @@ public class CustomPoint {
         checkHit();
     }
 
-    public void checkHit() {
+    public void checkHit(){
         long startTime = System.nanoTime();
         String fullCurrentTime = OffsetDateTime.now().toString();
         this.curTime = fullCurrentTime.substring(0, 10) + " " + fullCurrentTime.substring(11, 19);
 
-        if (checkCircle() || checkTriangle() || checkRectangle()) {
-            setHit(true);
+        if (checkCircle() || checkTriangle() || checkRectangle()){
+            setHit("true");
         } else {
-            setHit(false);
+            setHit("false");
         }
-        this.execTime = String.valueOf((System.nanoTime() - startTime)/Math.pow(10,6));
+        this.execTime = String.valueOf(System.nanoTime() - startTime);
     }
 
-    private boolean checkCircle() {
+    private boolean checkCircle(){
         double x = this.x;
         double y = this.y;
         double r = this.r;
@@ -70,5 +76,19 @@ public class CustomPoint {
         } else {
             return x >= 0 && y <= 0 && x <= -r/2 && -y <= -r;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "PointDTO{" +
+                "x=" + x +
+                ", y=" + y +
+                ", r=" + r +
+                ", hit=" + hit +
+                ", curTime='" + curTime + '\'' +
+                ", execTime='" + execTime + '\'' +
+                ", userID=" + userID +
+                ", pointID=" + pointID +
+                '}';
     }
 }

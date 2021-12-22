@@ -1,14 +1,14 @@
 package org.examplenew.controller;
 
 
-import org.examplenew.comparator.PointDataComparator;
-import org.examplenew.dto.CustomPoint;
+import org.examplenew.comparator.PointDTODataComparator;
+import org.examplenew.dto.PointDTO;
 import org.examplenew.dto.CustomUserDetails;
-import org.examplenew.entity.Point;
+import org.examplenew.request.GetRequest;
 import org.examplenew.request.PointRequest;
 import org.examplenew.response.OtherResponseWrapper;
-import org.examplenew.service.PointService;
-import org.examplenew.validation.PointValidator;
+import org.examplenew.service.PointServiceInter;
+import org.examplenew.validation.PointValidatorInter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,12 +23,12 @@ import java.util.Optional;
 @RequestMapping("/points/")
 public class AreaController {
 
-    private PointService pointService;
-    private PointValidator pointValidator;
+    private PointServiceInter pointService;
+    private PointValidatorInter pointValidator;
 
     @Autowired
-    public AreaController(PointService pointService,
-                          PointValidator pointValidator){
+    public AreaController(PointServiceInter pointService,
+                          PointValidatorInter pointValidator){
         this.pointService = pointService;
         this.pointValidator = pointValidator;
     }
@@ -39,19 +39,21 @@ public class AreaController {
             if (SecurityContextHolder.getContext().getAuthentication() == null){
                 return ResponseEntity.badRequest().body(new OtherResponseWrapper("Недостаточно прав."));
             }
-            System.out.println("auth: " + SecurityContextHolder.getContext().getAuthentication());
+//            System.out.println("auth: " + SecurityContextHolder.getContext().getAuthentication());
 
             Optional<String> checkPoint = pointValidator.check(pointRequest);
             if (checkPoint.isPresent()) {
+//                System.err.println(checkPoint.get());
                 return ResponseEntity.badRequest().body(new OtherResponseWrapper(checkPoint.get()));
             }
             Integer userID = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUserID();
-            Optional<Point> savePointOptional = pointService.savePoint(
-                    new CustomPoint(
+            Optional<PointDTO> savePointOptional = pointService.savePoint(
+                    new PointDTO(
                             pointRequest.getX(),
                             pointRequest.getY(),
                             pointRequest.getR(),
                             userID));
+//            System.out.println(!savePointOptional.isPresent());
             if (!savePointOptional.isPresent()) {
                 return ResponseEntity.badRequest().body(new OtherResponseWrapper("Точка не была сохранена."));
             }
@@ -62,25 +64,25 @@ public class AreaController {
     }
 
 
-    @GetMapping("get")
-    public ResponseEntity<?> get(){
+    @PostMapping("get")
+    public ResponseEntity<?> get(@RequestBody GetRequest req){
+//        System.out.println("req"  + req.getUserID());
         if (SecurityContextHolder.getContext().getAuthentication() == null){
             return ResponseEntity.badRequest().body(new OtherResponseWrapper("Недостаточно прав."));
         }
-        List<Point> points = pointService.findAll();
-        Collections.sort(points, new PointDataComparator());
+        List<PointDTO> points = pointService.findAllByUserID(Integer.valueOf(req.getUserID()));
+        points.sort(new PointDTODataComparator());
         return ResponseEntity.ok().body(points);
     }
 
     @PostMapping("clear")
     public ResponseEntity<?> clear(@RequestBody PointRequest pointRequest){
+//        System.out.println(pointRequest.getUserID());
         if (SecurityContextHolder.getContext().getAuthentication() == null){
             return ResponseEntity.badRequest().body(new OtherResponseWrapper("Недостаточно прав."));
         }
-        System.out.println("FFDAFA" + pointRequest.getUserID());
-        Collection<Point> deletedPoints = pointService.deletePointsByUserID(pointRequest.getUserID());
-        deletedPoints.forEach(System.out::println);
-        return ResponseEntity.ok().body(deletedPoints);
+        Collection<PointDTO> deletedDTOPoints = pointService.deletePointsByUserID(pointRequest.getUserID());
+        return ResponseEntity.ok().body(deletedDTOPoints);
     }
 
 

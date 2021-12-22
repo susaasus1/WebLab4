@@ -1,4 +1,4 @@
-package org.examplenew.config;
+package org.examplenew.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -28,11 +28,12 @@ import java.util.stream.Collectors;
 
 @Component
 @Log
-public class JwtProvider {
+public class JwtTokenProvider implements JwtProvider{
 
-    @Value("YAUSTAL")
+    @Value("ustal")
     private String jwtSecret;
 
+    @Override
     public String generateToken(CustomUserDetails customUserDetails) {
         Date date = Date.from(LocalDate.now().plusDays(15).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
@@ -51,6 +52,7 @@ public class JwtProvider {
                 .compact();
     }
 
+    @Override
     public boolean validateToken(String token) {
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
@@ -59,7 +61,7 @@ public class JwtProvider {
             throw new InvalidTokenException("Недостаточно прав.");
         }
     }
-
+    @Override
     public String getLoginFromToken(String token) {
         Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
         return claims.getSubject();

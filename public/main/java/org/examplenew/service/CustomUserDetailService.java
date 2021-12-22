@@ -1,6 +1,5 @@
 package org.examplenew.service;
 
-
 import org.examplenew.dto.CustomUserDetails;
 import org.examplenew.entity.User;
 import org.examplenew.repos.RoleRepository;
@@ -11,10 +10,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomUserDetailsService implements UserDetailsService {
+public class CustomUserDetailService implements UserDetailsService {
+
     @Autowired
     @Lazy
-    private UserService userService;
+    private UserServiceInter userService;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -28,4 +28,5 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
         return CustomUserDetails.fromUserEntityToCustomUserDetails(userEntity, roleRepository);
     }
+
 }

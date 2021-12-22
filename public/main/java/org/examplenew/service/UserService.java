@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class UserService {
+public class UserService implements UserServiceInter {
 
     @Autowired
     private UserRepository userEntityRepository;
@@ -45,7 +45,7 @@ public class UserService {
         return null;
     }
 
-    @Deprecated
+    @Override
     public List<User> findAll(){
         return userEntityRepository.findAll();
     }

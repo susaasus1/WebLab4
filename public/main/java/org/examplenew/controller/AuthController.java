@@ -6,22 +6,22 @@ package org.examplenew.controller;
 
 import org.examplenew.entity.RefreshToken;
 import org.examplenew.exception.InvalidTokenException;
+import org.examplenew.jwt.JwtProvider;
 import org.examplenew.repos.RoleRepository;
 import org.examplenew.request.CheckUserRequest;
 import org.examplenew.request.RefreshRequest;
 import org.examplenew.response.RefreshResponse;
-import org.examplenew.validation.AuthValidator;
+import org.examplenew.validation.AuthValidatorInter;
 import org.springframework.security.authentication.BadCredentialsException;
 import lombok.extern.slf4j.Slf4j;
-import org.examplenew.config.JwtProvider;
 import org.examplenew.dto.CustomUserDetails;
 import org.examplenew.entity.User;
 import org.examplenew.request.LogInRequest;
 import org.examplenew.request.RegisterRequest;
 import org.examplenew.response.AuthResponse;
 import org.examplenew.response.OtherResponseWrapper;
-import org.examplenew.service.RefreshTokenService;
-import org.examplenew.service.UserService;
+import org.examplenew.service.RefreshTokenServiceInter;
+import org.examplenew.service.UserServiceInter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,23 +38,23 @@ import java.util.Optional;
 @Slf4j
 public class AuthController {
     @Autowired
-    private UserService userService;
+    private UserServiceInter userService;
 
     @Autowired
     private JwtProvider jwtProvider;
 
     @Autowired
-    private RefreshTokenService refreshTokenService;
+    private RefreshTokenServiceInter refreshTokenService;
 
     @Autowired
     private RoleRepository roleRepository;
 
     private final AuthenticationManager authenticationManager;
-    private final AuthValidator authValidator;
+    private final AuthValidatorInter authValidator;
 
 
     @Autowired
-    public AuthController(AuthenticationManager authenticationManager, AuthValidator authValidator){
+    public AuthController(AuthenticationManager authenticationManager, AuthValidatorInter authValidator){
         this.authenticationManager = authenticationManager;
         this.authValidator = authValidator;
     }
@@ -63,22 +63,22 @@ public class AuthController {
     @PostMapping("/register")
     @CrossOrigin
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registrationRequest) {
-            Optional<String> checkReq = authValidator.defaultCheck(registrationRequest);
-            if (checkReq.isPresent()){
-                return ResponseEntity.badRequest().body(new OtherResponseWrapper(checkReq.get()));
-            }
+        Optional<String> checkReq = authValidator.defaultCheck(registrationRequest);
+        if (checkReq.isPresent()){
+            return ResponseEntity.badRequest().body(new OtherResponseWrapper(checkReq.get()));
+        }
 
-            if (userService.findByUserName(registrationRequest.getUserName()) != null){
-                return ResponseEntity.badRequest().body(new OtherResponseWrapper("Пользователь с таким именем уже существует"));
+        if (userService.findByUserName(registrationRequest.getUserName()) != null){
+            return ResponseEntity.badRequest().body(new OtherResponseWrapper("Пользователь с таким именем уже существует"));
 
-            }
+        }
 
-            User user = new User();
+        User user = new User();
 
-            user.setUserName(registrationRequest.getUserName());
-            user.setUserPassword(registrationRequest.getUserPassword());
+        user.setUserName(registrationRequest.getUserName());
+        user.setUserPassword(registrationRequest.getUserPassword());
 
-            return ResponseEntity.ok().body(userService.saveUser(user));
+        return ResponseEntity.ok().body(userService.saveUser(user));
 
     }
 
@@ -90,6 +90,8 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+//            System.out.println("SET: "  + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+//            System.out.println(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
             String accessToken = jwtProvider.generateToken(customUserDetails);
             Optional<String> refreshToken = refreshTokenService.updateRefreshToken(customUserDetails.getUserID());
 
@@ -123,11 +125,11 @@ public class AuthController {
 
     @PostMapping("/refreshToken")
     public ResponseEntity<?> refreshToken(@RequestBody RefreshRequest req){
-        System.out.println("РЕФРЕШ");
+//        System.out.println("РЕФРЕШ");
         Optional<RefreshToken> refreshTokenOptional = refreshTokenService.findByRefreshTokenString(req.getRefreshToken());
 
         if (!refreshTokenOptional.isPresent()){
-            System.out.println("*REFRESH* refreshtok: " + req.getRefreshToken());
+//            System.out.println("*REFRESH* refreshtok: " + req.getRefreshToken());
             return ResponseEntity.badRequest().body(new OtherResponseWrapper("Данный токен не найден."));
         }
 
@@ -155,13 +157,13 @@ public class AuthController {
         try {
             validToken = jwtProvider.validateToken(token);
         } catch (InvalidTokenException e){
-            System.out.println("НЕВАЛИДНЫЙ ТОКЕН");
+//            System.out.println("НЕВАЛИДНЫЙ ТОКЕН");
             return ResponseEntity.badRequest().body(new OtherResponseWrapper("Невалидный токен."));
         }
 
         String loginFromToken = jwtProvider.getLoginFromToken(token);
         if (!Objects.equals(loginFromToken, login)){
-            System.out.println("ЛОГИН");
+//            System.out.println("ЛОГИН");
             return ResponseEntity.badRequest().body(new OtherResponseWrapper("Токен и пользователь не совпадают."));
         }
         return ResponseEntity.ok().body(new OtherResponseWrapper("Ок."));

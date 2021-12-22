@@ -2,7 +2,8 @@ package org.examplenew.service;
 
 
 import lombok.RequiredArgsConstructor;
-import org.examplenew.dto.CustomPoint;
+import org.examplenew.converter.PointDTOConverter;
+import org.examplenew.dto.PointDTO;
 import org.examplenew.entity.Point;
 import org.examplenew.entity.User;
 import org.examplenew.repos.PointRepository;
@@ -14,38 +15,37 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class PointService {
+public class PointService implements PointServiceInter {
     @Autowired
     private PointRepository pointRepository;
     @Autowired
     private UserRepository userRepository;
 
-    public Optional<Point> savePoint(CustomPoint customPoint){
+    @Override
+    public Optional<PointDTO> savePoint(PointDTO customPoint){
         Optional<User> userOptional = userRepository.findById(customPoint.getUserID());
         if (!userOptional.isPresent()){
             return Optional.empty();
         }
-        Point point = new Point(
-                customPoint.getX(),
-                customPoint.getY(),
-                customPoint.getR(),
-                customPoint.getCurTime(),
-                customPoint.getExecTime(),
-                customPoint.isHit(),
-                userOptional.get());
-        return Optional.of(pointRepository.save(point));
+        Point point = PointDTOConverter.dtoToEntity(customPoint, userOptional.get());
+        Point savedPoint = pointRepository.save(point);
+        PointDTO savedPointDTO = PointDTOConverter.entityToDTO(savedPoint);
+        return Optional.of(savedPointDTO);
     }
 
-    public List<Point> findAll(){
-        return pointRepository.findAll();
+    @Override
+    public List<PointDTO> findAllByUserID(Integer userID){
+        return PointDTOConverter.listEntityToDTO(pointRepository.findAllByUser(userRepository.findById(userID).get()));
     }
 
 
-    public Collection<Point> deletePointsByUserID(Integer userID){
+    @Override
+    public Collection<PointDTO> deletePointsByUserID(Integer userID){
         Optional<User> userOptional = userRepository.findById(userID);
         if (!userOptional.isPresent()){
-            return Collections.<Point>emptyList();
+            return Collections.<PointDTO>emptyList();
         }
-        return pointRepository.deleteAllByUser(userRepository.findById(userID).get());
+        Collection<Point> pointList = pointRepository.deleteAllByUser(userRepository.findById(userID).get());
+        return PointDTOConverter.listEntityToDTO(pointList);
     }
 }

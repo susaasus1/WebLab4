@@ -49,14 +49,14 @@ public class Point {
             double r,
             String curTime,
             String execTime,
-            Boolean hit,
+            String hit,
             User user){
         this.x = x;
         this.y = y;
         this.r = r;
         this.curTime = curTime;
         this.execTime = execTime;
-        this.hit = hit.toString();
+        this.hit = hit;
         this.user = user;
 
     }

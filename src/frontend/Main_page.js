@@ -31,7 +31,7 @@ function Main_page(props) {
                 ContentType: 'application/json',
                 Accept: 'application/json'
             };
-            axios.get('http://localhost:8080/points/get', {headers: httpHeaders})
+            axios.post('http://localhost:8080/points/get', {userID: userID}, {headers: httpHeaders})
                 .then(response => {
                     if (response.status === 200) {
                         dispatch({type: "LOAD_TABLE", data: response.data})

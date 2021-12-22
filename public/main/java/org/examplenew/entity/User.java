@@ -22,10 +22,6 @@ public class User{
     @Column(nullable = false)
     private Long userRoleID;
 
-
-
-
-    //--------------------------------------
     public User(){};
 
     public User(String name, String pass){

@@ -145,7 +145,7 @@ function Data_inputs_main(props) {
         dispatch({type: "SET_X", x: e.target.innerText})
         let x_click = xCoordinatesToPixels(e.target.innerText);
         let y_click = yCoordinatesToPixels(y);
-        drawPoint(x_click, y_click)
+        drawPoint(x_click, y_click,r)
 
     }
 
@@ -153,7 +153,7 @@ function Data_inputs_main(props) {
         dispatch({type: "SET_Y", y: e.target.value})
         let x_click = xCoordinatesToPixels(x);
         let y_click = yCoordinatesToPixels(e.target.value);
-        drawPoint(x_click, y_click)
+        drawPoint(x_click, y_click,r)
     }
 
     function validateYWithEvent(e) {
